@@ -1,67 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Note</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css">
-    <link rel="stylesheet" href="note.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css">
+  <link rel="stylesheet" href="note.css">
 </head>
 <body>
-    <div class="note-header">
-        <input type="text" id="noteTitle" placeholder="Note Title">
-        <button id="saveExitBtn">Save & Exit</button>
-    </div>
+  <div class="note-header">
+    <input type="text" id="noteTitle" placeholder="Note Title">
+    <button id="saveExitBtn">Save & Exit</button>
+  </div>
 
-    <div class="container">
-        <div class="drag-mode-btn">
-            <button id="drag-mode">Drag Mode</button>
+  <div class="container">
+
+    <div class="toolbar">
+      <div class="tool-group">
+        <div class="tool-button active" id="brush">
+          <img src="icons/brush.svg" alt="Brush">
         </div>
-        <div class="toolbar">
-            <div class="tool-group">
-                <div class="tool-button active" id="brush">
-                    <img src="icons/brush.svg" alt="Brush">
-                </div>
-                <div class="tool-button" id="eraser">
-                    <img src="icons/eraser.svg" alt="Eraser">
-                </div>
-                <div class="tool-slider">
-                    <input type="range" id="size-slider" min="1" max="50" value="5">
-                </div>
-            </div>
-
-            <div class="tool-group color-picker">
-                <div class="color-display" id="color-display">
-                    <div class="current-color"></div>
-                    <div class="color-dropdown">
-                        <div class="preset-colors">
-                            <div class="color-option" style="background-color: #000;"></div>
-                            <div class="color-option" style="background-color: #6dd400;"></div>
-                            <div class="color-option" style="background-color: #4a98f7;"></div>
-                            <div class="color-option" style="background-color: #e02020;"></div>
-                        </div>
-                        <div class="custom-row">
-                            <div class="color-option" id="custom-color-picker">
-                                <div class="pickr-container">
-                                    <div class="pickr-button">+</div>
-                                </div>
-                            </div>
-                            <div class="color-option recent-color"></div>
-                            <div class="color-option recent-color"></div>
-                            <div class="color-option recent-color"></div>
-                        </div>
-                    </div>
-                </div>
-                <button class="clear-canvas">Clear</button>
-            </div>
+        <div class="tool-button" id="eraser">
+          <img src="icons/eraser.svg" alt="Eraser">
         </div>
+        <div class="tool-slider">
+          <input type="range" id="size-slider" min="1" max="50" value="5">
+        </div>
+      </div>
 
-        <div class="drawing-board">
-            <canvas id="grid-canvas"></canvas>
-            <canvas id="drawing-canvas"></canvas>
+      <div class="tool-group color-picker">
+        <div class="color-display" id="color-display">
+          <div class="current-color"></div>
+          <div class="color-dropdown">
+            <div class="preset-colors">
+              <div class="color-option" style="background-color: #000;"></div>
+              <div class="color-option" style="background-color: #6dd400;"></div>
+              <div class="color-option" style="background-color: #4a98f7;"></div>
+              <div class="color-option" style="background-color: #e02020;"></div>
+            </div>
+            <div class="custom-row">
+              <div class="color-option" id="custom-color-picker">
+                <div class="pickr-container">
+                  <div class="pickr-button">+</div>
+                </div>
+              </div>
+              <div class="color-option recent-color"></div>
+              <div class="color-option recent-color"></div>
+              <div class="color-option recent-color"></div>
+            </div>
           </div>
+        </div>
+        <button class="clear-canvas">Clear</button>
+        <div class="undo-button" id="undo">
+            <img src="icons/undo.svg" alt="Undo">
+        </div>
+      </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-    <script src="note.js"></script>
+
+    <div class="drawing-board">
+      <canvas id="grid-canvas"></canvas>
+      <canvas id="drawing-canvas"></canvas>
+    </div>
+
+    <!-- NEW: Overlay container for zoom & drag mode controls -->
+    <div class="controls-overlay">
+        <div class="zoom-controls">
+          <button id="zoomInBtn">Zoom In</button>
+          <button id="zoomOutBtn">Zoom Out</button>
+        </div>
+        <div class="drag-mode-btn">
+          <button id="drag-mode">Drag Mode</button>
+        </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+  <script src="note.js"></script>
 </body>
 </html>

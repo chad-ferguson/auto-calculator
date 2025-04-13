@@ -1,17 +1,16 @@
-/* Base styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Arial', sans-serif;
-}
-
-body {
+  }
+  
+  body {
     background: #f0f2f5;
     padding: 20px;
-}
-
-.header {
+  }
+  
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -20,42 +19,55 @@ body {
     background: white;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#newNoteBtn {
+  }
+  
+  #newNoteBtn, #deleteAllBtn {
     padding: 10px 20px;
-    background: #4a98f7;
-    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
-}
-
-#newNoteBtn:hover {
+  }
+  
+  #newNoteBtn {
+    background: #4a98f7;
+    color: white;
+  }
+  
+  #newNoteBtn:hover {
     background: #2d6db5;
-}
-
-.notes-grid {
+  }
+  
+  #deleteAllBtn {
+    background: #e74c3c;
+    color: white;
+  }
+  
+  #deleteAllBtn:hover {
+    background: #c0392b;
+  }
+  
+  .notes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
-}
-
-.note-card {
+  }
+  
+  .note-card {
     background: white;
     border-radius: 10px;
     padding: 20px;
     cursor: pointer;
     transition: transform 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.note-card:hover {
+  }
+  
+  .note-card:hover {
     transform: translateY(-3px);
-}
-
-.new-note-card {
+  }
+  
+  /* New Note card styling */
+  .new-note-card {
     background: #4a98f7;
     color: white;
     display: flex;
@@ -63,31 +75,22 @@ body {
     justify-content: center;
     font-size: 24px;
     min-height: 150px;
-}
-
-.header-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-#deleteAllBtn {
-    padding: 10px 20px;
-    background: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#deleteAllBtn:hover {
-    background: #c0392b;
-}
-
-.empty-state {
+  }
+  
+  /* Preview image inside a note card */
+  .note-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  /* In case there are no notes */
+  .empty-state {
     grid-column: 1 / -1;
     text-align: center;
     color: #666;
     padding: 40px;
     font-size: 1.2em;
-}
+  }
+  

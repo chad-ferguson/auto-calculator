@@ -2,12 +2,17 @@
 
 // -------------------- Global Variables --------------------
 let drawingHistory = [];
+let noteManager;
 window.drawingHistory = drawingHistory;
 
-// -------------------- Canvas Setup --------------------
+// Instead of a float zoom level, we use an integer exponent.
+let zoomExponent = 0;
+function getZoomLevel() {
+  return Math.pow(1.1, zoomExponent);
+}
+
 const gridCanvas = document.getElementById("grid-canvas");
 const drawingCanvas = document.getElementById("drawing-canvas");
-// We'll use the drawing canvas for our drawing operations.
 const canvas = drawingCanvas;
 const ctx = canvas.getContext("2d");
 
@@ -17,6 +22,9 @@ const colorOptions = document.querySelectorAll(".color-option");
 const clearCanvas = document.querySelector(".clear-canvas");
 const currentColorDisplay = document.querySelector(".current-color");
 const dragModeBtn = document.getElementById("drag-mode");
+const zoomInBtn = document.getElementById("zoomInBtn");
+const zoomOutBtn = document.getElementById("zoomOutBtn");
+const undoBtn = document.querySelector(".undo-button");
 
 // -------------------- Panning Variables --------------------
 let isDraggingCanvas = false;
@@ -36,12 +44,18 @@ let recentColors = [];
 let pendingColor = null;
 
 // -------------------- Utility Functions --------------------
+
+// This function adjusts pointer coordinates to account for the centered zoom transform.
 function getCanvasCoordinates(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
-  return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
-  };
+  // Get pointer position relative to the canvas.
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const currentZoom = getZoomLevel();
+  // Invert the centered transform:
+  const adjustedX = (x - canvas.width / 2) / currentZoom + canvas.width / 2;
+  const adjustedY = (y - canvas.height / 2) / currentZoom + canvas.height / 2;
+  return { x: adjustedX, y: adjustedY };
 }
 
 function rgbToHex(rgb) {
@@ -72,10 +86,18 @@ function updateRecentColors() {
   });
 }
 
-// -------------------- Redraw Function --------------------
-// This redraws the drawing canvas only. The grid canvas remains unchanged except for its background position.
+// -------------------- Redraw Function with Centered Zoom --------------------
 function redrawCanvas() {
+  // Clear the canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Save context state before applying transform.
+  ctx.save();
+  // Translate to center, apply zoom, then translate back.
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.scale(getZoomLevel(), getZoomLevel());
+  ctx.translate(-canvas.width / 2, -canvas.height / 2);
+  
+  // Draw each stroke as stored.
   drawingHistory.forEach(stroke => {
     ctx.save();
     if (stroke.isEraser) {
@@ -96,6 +118,29 @@ function redrawCanvas() {
     ctx.stroke();
     ctx.restore();
   });
+  ctx.restore(); // Restore the original context state.
+}
+
+function mod(a, n) {
+  return ((a % n) + n) % n;
+}
+
+function updateGrid() {
+  const currentZoom = getZoomLevel();
+  // Scale the grid spacing by the zoom level.
+  const scaledGridSize = gridSize * currentZoom;
+  // Calculate the offset for the grid background.
+  const offsetX = mod(canvasOffsetX * currentZoom,scaledGridSize);
+  const offsetY = mod(canvasOffsetY * currentZoom,scaledGridSize);
+
+  gridCanvas.style.backgroundSize = `${scaledGridSize}px ${scaledGridSize}px`;
+  gridCanvas.style.backgroundPosition = `${offsetX}px ${offsetY}px`;
+}
+
+// Call updateGrid whenever the canvas is redrawn
+function redrawAll() {
+  updateGrid();
+  redrawCanvas();
 }
 
 // -------------------- Color Picker Implementation --------------------
@@ -133,7 +178,6 @@ pickr.on('change', (color) => {
 });
 
 // -------------------- Drawing Functions --------------------
-// Each stroke is stored as: { color, width, points: [{x, y}], isEraser }
 const startDraw = (e) => {
   if (isDragMode) return;
   const pos = getCanvasCoordinates(e.clientX, e.clientY);
@@ -156,7 +200,7 @@ const draw = (e) => {
   const pos = getCanvasCoordinates(e.clientX, e.clientY);
   const currentStroke = drawingHistory[drawingHistory.length - 1];
   currentStroke.points.push({ x: pos.x, y: pos.y });
-  redrawCanvas();
+  redrawAll();
 };
 
 const stopDraw = () => {
@@ -165,7 +209,6 @@ const stopDraw = () => {
 };
 
 // -------------------- Canvas Event Handlers --------------------
-// For drawing operations we use the drawingCanvas.
 drawingCanvas.addEventListener('mousedown', (e) => {
   if (isDragMode) {
     isDraggingCanvas = true;
@@ -179,13 +222,12 @@ drawingCanvas.addEventListener('mousedown', (e) => {
 
 drawingCanvas.addEventListener('mousemove', (e) => {
   if (isDraggingCanvas) {
-    const deltaX = e.clientX - dragStartX;
-    const deltaY = e.clientY - dragStartY;
+    const scale = getZoomLevel();
+    const deltaX = (e.clientX - dragStartX) / scale;
+    const deltaY = (e.clientY - dragStartY) / scale;
     canvasOffsetX += deltaX;
     canvasOffsetY += deltaY;
-    // Update grid canvas background so that the grid moves along
     gridCanvas.style.backgroundPosition = `${canvasOffsetX % gridSize}px ${canvasOffsetY % gridSize}px`;
-    // Also update every point in drawing history (panning the drawing)
     drawingHistory.forEach(stroke => {
       stroke.points = stroke.points.map(pt => ({
         x: pt.x + deltaX,
@@ -194,7 +236,7 @@ drawingCanvas.addEventListener('mousemove', (e) => {
     });
     dragStartX = e.clientX;
     dragStartY = e.clientY;
-    redrawCanvas();
+    redrawAll();
   } else {
     draw(e);
   }
@@ -216,7 +258,7 @@ drawingCanvas.addEventListener("mouseleave", () => {
   }
 });
 
-// Touch events for mobile devices (applied to drawingCanvas)
+// Touch events for mobile devices.
 drawingCanvas.addEventListener("touchstart", (e) => {
   e.preventDefault();
   const touch = e.touches[0];
@@ -230,15 +272,18 @@ drawingCanvas.addEventListener("touchmove", (e) => {
 drawingCanvas.addEventListener("touchend", stopDraw);
 
 // -------------------- Additional UI Event Handlers --------------------
-
-// Clear Canvas button: clears only the drawing layer.
 clearCanvas.addEventListener("click", () => {
   ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
   drawingHistory.length = 0;
   noteManager.saveNote();
 });
 
-// Brush Size Slider
+undoBtn.addEventListener("click", () => {
+  drawingHistory.pop();
+  redrawAll();
+  noteManager.saveNote();
+});
+
 sizeSlider.addEventListener("input", () => brushWidth = sizeSlider.value);
 
 // Tool Buttons
@@ -302,6 +347,19 @@ document.querySelectorAll('.recent-color').forEach((el, index) => {
   });
 });
 
+// -------------------- Zoom Controls --------------------
+zoomInBtn.addEventListener("click", () => {
+  zoomExponent++; // Increase exponent (thus zooming in)
+  redrawAll();
+  noteManager.saveNote();
+});
+
+zoomOutBtn.addEventListener("click", () => {
+  zoomExponent--; // Decrease exponent (zooming out)
+  redrawAll();
+  noteManager.saveNote();
+});
+
 // -------------------- Drag Mode Toggle --------------------
 dragModeBtn.addEventListener("click", () => {
   isDragMode = !isDragMode;
@@ -314,6 +372,7 @@ window.addEventListener("load", () => {
   drawingCanvas.height = drawingCanvas.offsetHeight;
   gridCanvas.width = gridCanvas.offsetWidth;
   gridCanvas.height = gridCanvas.offsetHeight;
+  redrawAll();
 });
 
 window.addEventListener("resize", () => {
@@ -328,8 +387,6 @@ window.addEventListener("resize", () => {
 });
 
 // -------------------- Note Manager --------------------
-// All canvas and utility functions are now defined, so we define NoteManager.
-
 class NoteManager {
   constructor() {
     this.noteId = new URLSearchParams(window.location.search).get('id');
@@ -337,7 +394,9 @@ class NoteManager {
       id: this.noteId,
       title: 'Untitled Note',
       timestamp: new Date().toISOString(),
-      drawingHistory: []
+      drawingHistory: [],
+      preview: "",
+      zoomExponent: 0  // New field to store the zoom exponent
     };
     this.initialize();
   }
@@ -348,15 +407,20 @@ class NoteManager {
       this.saveNote();
       window.location.href = 'index.html';
     });
+    // Autosave every 5 seconds.
     setInterval(() => this.saveNote(), 5000);
 
     if (this.noteData.drawingHistory.length > 0) {
       window.drawingHistory = this.noteData.drawingHistory;
       drawingHistory = window.drawingHistory;
-      redrawCanvas();
     } else {
       window.drawingHistory = [];
       drawingHistory = window.drawingHistory;
+    }
+    // Load saved zoomExponent if available.
+    if (this.noteData.zoomExponent !== undefined) {
+      zoomExponent = this.noteData.zoomExponent;
+      redrawAll();
     }
   }
 
@@ -364,10 +428,12 @@ class NoteManager {
     this.noteData.title = document.getElementById('noteTitle').value;
     this.noteData.timestamp = new Date().toISOString();
     this.noteData.drawingHistory = window.drawingHistory || [];
+    this.noteData.preview = drawingCanvas.toDataURL();
+    this.noteData.zoomExponent = zoomExponent; // Save the current zoom exponent.
     localStorage.setItem(this.noteId, JSON.stringify(this.noteData));
   }
 }
 
 window.addEventListener("load", () => {
-  new NoteManager();
+  noteManager = new NoteManager();
 });

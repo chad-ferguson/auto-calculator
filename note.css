@@ -62,27 +62,6 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
   
-.drag-mode-btn {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 999;
-}
-  
-#drag-mode {
-    padding: 8px 16px;
-    border-radius: 4px;
-    border: none;
-    background: #4a98f7;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-  
-#drag-mode.active {
-    background: #2d6db5;
-}
-  
 .toolbar {
     position: absolute;
     top: 20px;
@@ -130,7 +109,7 @@ body {
     width: 24px;
     height: 24px;
 }
-  
+
 .tool-slider input[type="range"] {
     width: 100px;
     height: 6px;
@@ -139,6 +118,28 @@ body {
     margin: 0 10px;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+.undo-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.undo-button img {
+    width: 30px;
+    height: 30px;
+}
+.undo-button:hover {
+    transform: scale(1.1);
+    background: #4a98f7;
 }
   
 .color-picker {
@@ -335,7 +336,52 @@ body {
     color: white;
     transform: scale(1.1);
 }
-  
+
+.controls-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000; /* Ensures that these buttons are above the canvases */
+}
+
+/* Zoom control styling */
+.zoom-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.zoom-controls button {
+    padding: 5px 10px;
+    border: none;
+    background: #4a98f7;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.zoom-controls button:hover {
+    background: #2d6db5;
+}
+
+/* Drag mode button within overlay (if additional styling is needed) */
+.controls-overlay .drag-mode-btn button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    background: #4a98f7;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.controls-overlay .drag-mode-btn button.active {
+    background: #2d6db5;
+}
+
 .drawing-board {
     position: relative;
     width: 100%;
@@ -343,7 +389,7 @@ body {
     overflow: hidden;
 }
   
-  /* Both canvases fill the drawing board and are stacked */
+/* Both canvases fill the drawing board and are stacked */
 .drawing-board canvas {
     position: absolute;
     top: 0;
@@ -352,14 +398,15 @@ body {
     height: 100%;
     display: block;
 }
-  
-  /* The grid canvas shows a grid via a background image */
+
 #grid-canvas {
     background-image: 
       linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    /* These values are your base grid parameters. */
     background-size: 40px 40px;
     background-position: 0 0;
+    background-color: transparent;
 }
 
 /* Pickr Overrides */
