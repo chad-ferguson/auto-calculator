@@ -4,13 +4,14 @@
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    padding: 15px 20px;
+    width: 100%;
+    padding: 15px;
     background: white;
     display: flex;
     gap: 15px;
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 0 0 20px 20px;
 }
   
 #noteTitle {
@@ -49,17 +50,20 @@ body {
     height: 100vh;
     width: 100vw;
     margin: 0;
+    overflow: hidden;
 }
+
   
 .container {
-    margin-top: 70px; /* Offset for header */
-    width: calc(100% - 30px);
-    height: calc(100vh - 30px);
+    margin-top: 75px;
+    width: calc(100% - 18px);
+    height: calc(100vh - 90px);
     border: 2px solid #fff;
     border-radius: 20px;
-    position: relative;
+    position: fixed;
     background: #fff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
   
 .toolbar {

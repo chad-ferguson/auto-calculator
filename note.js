@@ -348,14 +348,30 @@ document.querySelectorAll('.recent-color').forEach((el, index) => {
 });
 
 // -------------------- Zoom Controls --------------------
+drawingCanvas.addEventListener('wheel', function (e){
+  e.preventDefault();
+  const change = Math.sign(e.deltaY);
+
+  if (change > 0) {
+    zoomExponent = zoomExponent + 0.5;
+  } else { 
+    zoomExponent = zoomExponent - 0.5;
+  }
+  // set a max and min
+  zoomExponent = Math.max(-10, Math.min(zoomExponent, 10));
+
+  redrawAll();
+  noteManager.saveNote();
+})
+
 zoomInBtn.addEventListener("click", () => {
-  zoomExponent++; // Increase exponent (thus zooming in)
+  zoomExponent++;
   redrawAll();
   noteManager.saveNote();
 });
 
 zoomOutBtn.addEventListener("click", () => {
-  zoomExponent--; // Decrease exponent (zooming out)
+  zoomExponent--;
   redrawAll();
   noteManager.saveNote();
 });
